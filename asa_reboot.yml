@@ -1,0 +1,43 @@
+
+---
+- name: Cisco ASA HA Failover and Reload Standby
+  hosts: standby_asa
+  connection: network_cli
+  gather_facts: no
+   
+
+  tasks:
+    - name: Ensure device is standby before starting
+      asa_command:
+        commands:
+          - show failover
+      register: failover_status
+
+    - name: Validate standby role
+      assert:
+        that:
+          - "'Standby Ready' in failover_status.stdout[0]"
+        fail_msg: "This device is not standby. Aborting."
+
+    - name: Trigger failover (make standby active)
+      asa_command:
+        commands:
+          - failover active
+
+    - name: Wait for failover to complete
+      pause:
+        seconds: "{{ wait_seconds }}"
+
+- name: Reload the new standby ASA
+  hosts: active_asa
+  connection: network_cli
+  gather_facts: no
+  vars:
+    ansible_network_os: cisco.asa.asa
+
+  tasks: 
+
+    - name: Reload standby via failover command
+      asa_command:
+        commands:
+          - failover reload-standby
