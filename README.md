@@ -17,7 +17,10 @@ This automation helps streamline HA maintenance tasks, reduce manual errors, and
     1. set enviroment variables
         export ASA_USER="admin"
         export ASA_PASSWORD="yourpassword"
-    2. ansible-playbook asa_reboot.yml
+    
+    2. update the ip's of the Active and Standby ASA's in hosts.yml
+
+    3. ansible-playbook asa_reboot.yml
 
 
 
